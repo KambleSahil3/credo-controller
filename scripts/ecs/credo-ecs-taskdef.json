@@ -1,0 +1,66 @@
+{
+    "family": "${FAMILY}",
+    "containerDefinitions": [
+        {
+            "name": "Platform-admin",
+            "image": "%REPOSITORY_URI%:CREDO_v_%BUILD_NUMBER%",
+            "cpu": 154,
+            "memory": 307,
+            "portMappings": [
+                {
+                    "containerPort": 8001,
+                    "hostPort": 8001,
+                    "protocol": "tcp"
+                },
+                {
+                    "containerPort": 9001,
+                    "hostPort": 9001,
+                    "protocol": "tcp"
+                }
+            ],
+            "essential": true,
+            "command": [
+                "--auto-accept-connections",
+                "--config",
+                "/config.json"
+            ],
+            "environment": [
+                {
+                    "name": "AFJ_REST_LOG_LEVEL",
+                    "value": "1"
+                }
+            ],
+            "environmentFiles": [
+                {
+                    "value": "${S3_ARN}",
+                    "type": "s3"
+                }
+            ],
+            "mountPoints": [
+                {
+                    "sourceVolume": "config",
+                    "containerPath": "/config.json",
+                    "readOnly": true
+                }
+            ],
+            "volumesFrom": [],
+            "ulimits": []
+        }
+        
+    ],
+    "executionRoleArn": "arn:aws:iam::${ACCOUNT_ID}:role/ecsTaskExecutionRole",
+    "placementConstraints": [],
+    "requiresCompatibilities": [
+        "EC2"
+    ],
+    "cpu": "154",
+    "memory": "307",
+    "volumes": [
+        {
+            "name": "config",
+            "host": {
+                "sourcePath": "${SourcePath}"
+            }
+        }
+    ]
+}
