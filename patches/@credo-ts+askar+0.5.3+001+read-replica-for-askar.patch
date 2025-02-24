@@ -1,0 +1,62 @@
+diff --git a/node_modules/@credo-ts/askar/build/storage/AskarStorageService.js b/node_modules/@credo-ts/askar/build/storage/AskarStorageService.js
+index 8e4fda5..f004a8c 100644
+--- a/node_modules/@credo-ts/askar/build/storage/AskarStorageService.js
++++ b/node_modules/@credo-ts/askar/build/storage/AskarStorageService.js
+@@ -84,7 +84,7 @@ let AskarStorageService = class AskarStorageService {
+     async getById(agentContext, recordClass, id) {
+         (0, assertAskarWallet_1.assertAskarWallet)(agentContext.wallet);
+         try {
+-            const record = await agentContext.wallet.withSession((session) => session.fetch({ category: recordClass.type, name: id }));
++            const record = await agentContext.wallet.withSessionGet((session) => session.fetch({ category: recordClass.type, name: id }));
+             if (!record) {
+                 throw new core_1.RecordNotFoundError(`record with id ${id} not found.`, {
+                     recordType: recordClass.type,
+@@ -101,7 +101,7 @@ let AskarStorageService = class AskarStorageService {
+     /** @inheritDoc */
+     async getAll(agentContext, recordClass) {
+         (0, assertAskarWallet_1.assertAskarWallet)(agentContext.wallet);
+-        const records = await agentContext.wallet.withSession((session) => session.fetchAll({ category: recordClass.type }));
++        const records = await agentContext.wallet.withSessionGet((session) => session.fetchAll({ category: recordClass.type }));
+         const instances = [];
+         for (const record of records) {
+             instances.push((0, utils_1.recordToInstance)(record, recordClass));
+diff --git a/node_modules/@credo-ts/askar/build/wallet/AskarBaseWallet.js b/node_modules/@credo-ts/askar/build/wallet/AskarBaseWallet.js
+index e768dd1..2252981 100644
+--- a/node_modules/@credo-ts/askar/build/wallet/AskarBaseWallet.js
++++ b/node_modules/@credo-ts/askar/build/wallet/AskarBaseWallet.js
+@@ -22,9 +22,34 @@ class AskarBaseWallet {
+      * TODO: update to new `using` syntax so we don't have to use a callback
+      */
+     async withSession(callback) {
++        console.log('WRITE_POSTGRES_DB_URI::::::', process.env.WRITE_POSTGRES_DB_URI);
+         let session = undefined;
+         try {
+-            session = await this.store.session(this.profile).open();
++            const readStore = await aries_askar_shared_1.Store.open({
++                uri: String(process.env.WRITE_POSTGRES_DB_URI),
++                keyMethod: (0, utils_1.keyDerivationMethodToStoreKeyMethod)(core_1.KeyDerivationMethod.Argon2IMod),
++                passKey: String(process.env.WALLET_PASSKEY),
++            });
++            session = await readStore.session(this.profile).open();
++            const result = await callback(session);
++            return result;
++        }
++        finally {
++            if (session === null || session === void 0 ? void 0 : session.handle) {
++                await session.close();
++            }
++        }
++    }
++    async withSessionGet(callback) {
++        console.log('READ_POSTGRES_DB_URI::::::', process.env.READ_POSTGRES_DB_URI);
++        let session = undefined;
++        try {
++            const writeStore = await aries_askar_shared_1.Store.open({
++                uri: String(process.env.READ_POSTGRES_DB_URI),
++                keyMethod: (0, utils_1.keyDerivationMethodToStoreKeyMethod)(core_1.KeyDerivationMethod.Argon2IMod),
++                passKey: String(process.env.WALLET_PASSKEY),
++            });
++            session = await writeStore.session(this.profile).open();
+             const result = await callback(session);
+             return result;
+         }
