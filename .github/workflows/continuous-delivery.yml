@@ -1,5 +1,4 @@
 name: Continous Delivery
-
 on:
   push:
     branches:
