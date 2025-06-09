@@ -53,7 +53,7 @@ jobs:
           push: true
           platforms:  ${{ matrix.arch }}
           tags: |
-            ${{ env.REGISTRY }}/${{ env.REPO_OWNER_LC }}/${{ env.SERVICE }}:${{ matrix.arch }}
+            ${{ env.REGISTRY }}/${{ env.REPO_OWNER_LC }}/${{ env.SERVICE }}:${{ matrix.arch == 'linux/arm64' && 'arm64' || 'amd64' }}
           # tags: |
           #   ${{ env.REGISTRY }}/${{ env.REPO_OWNER_LC }}/${{ env.SERVICE }}:latest
           cache-from: type=gha
