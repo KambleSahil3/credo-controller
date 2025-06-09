@@ -13,6 +13,9 @@ jobs:
   build-and-push:
     name: Push Docker image to GitHub
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [linux/amd64, linux/arm64]
 
     permissions:
       contents: read
@@ -48,6 +51,10 @@ jobs:
           context: .
           file: Dockerfile
           push: true
-          platforms: linux/amd64,linux/arm64
+          platforms:  ${{ matrix.arch }}
           tags: |
-            ${{ env.REGISTRY }}/${{ env.REPO_OWNER_LC }}/${{ env.SERVICE }}:latest
+            ${{ env.REGISTRY }}/${{ env.REPO_OWNER_LC }}/${{ env.SERVICE }}:${{ matrix.arch }}
+          # tags: |
+          #   ${{ env.REGISTRY }}/${{ env.REPO_OWNER_LC }}/${{ env.SERVICE }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
