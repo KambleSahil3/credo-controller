@@ -12,7 +12,7 @@ COPY . .
 # Install dependencies
 RUN rm -rf node_modules
 #RUN yarn install
-RUN yarn install --network-timeout 600000
+RUN yarn install
 
 RUN yarn global add patch-package
 
