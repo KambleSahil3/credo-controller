@@ -1,5 +1,5 @@
 # Stage 1: Builder stage
-FROM node:18.19.0-alpine AS builder
+FROM node:18.19.0 AS builder
 
 WORKDIR /app
 
@@ -11,7 +11,8 @@ COPY . .
 
 # Install dependencies
 RUN rm -rf node_modules
-RUN yarn install
+#RUN yarn install
+RUN yarn install --network-timeout 600000
 
 RUN yarn global add patch-package
 
