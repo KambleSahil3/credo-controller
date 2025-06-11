@@ -32,11 +32,16 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_PAT }}
 
+      - name: Patch Dockerfile with network timeout
+        run: |
+          cp Dockerfile Dockerfile.ci
+          sed -i 's|yarn install --frozen-lockfile|yarn install --frozen-lockfile --network-timeout 600000|' Dockerfile.ci
+
       - name: Build and Push Docker Image ${{ env.SERVICE }}
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: Dockerfile
+          file: Dockerfile.ci
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.SERVICE }}:${{ env.TAG }}
