@@ -20,7 +20,7 @@ RUN yarn global add patch-package
 RUN yarn build
 
 # Stage 2: Production stage
-FROM node:18.19.0-alpine
+FROM node:18.19.0
 
 WORKDIR /app
 
