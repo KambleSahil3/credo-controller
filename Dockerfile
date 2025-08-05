@@ -11,7 +11,6 @@ COPY . .
 
 # Install dependencies
 RUN rm -rf node_modules
-#RUN yarn install
 RUN yarn install --frozen-lockfile
 
 RUN yarn global add patch-package
@@ -20,7 +19,7 @@ RUN yarn global add patch-package
 RUN yarn build
 
 # Stage 2: Production stage
-FROM node:18.19.0
+FROM node:18.19.0-slim
 
 WORKDIR /app
 
